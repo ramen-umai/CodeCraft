@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>CodeCraft</title>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="ja.js"></script>
+  <script src="https://kit.fontawesome.com/8ca18021b2.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ece9e6, #ffffff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .button-row {
+      margin: 10px 0 0 0;
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: flex-end;
+      max-width: 550px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      padding: 20px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      max-width: 100%;
+    }
+
+    #blocklyDiv {
+      height: 600px;
+      width: 700px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      background: #fdfdfd;
+      flex-shrink: 0;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #00c20d;
+      padding: 10px;
+      width: 500px;
+      height: auto;
+      min-height: 60px;
+      overflow: auto;
+      white-space: pre-wrap;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+      margin: 0;
+      font-size: 1.05em;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 7px 18px;
+      border: none;
+      border-radius: 6px;
+      background: #3483e6;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(52, 131, 230, 0.06);
+    }
+    .title {
+        padding-right: 1000px;
+    }
+    button:hover, button:focus {
+      background: #1964b9;
+      outline: none;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    @media (max-width: 900px) {
+      #blocklyDiv { width: 90vw; min-width: 280px; }
+      pre { width: 90vw; min-width: 200px; }
+      .container { flex-direction: column; align-items: center; }
+      .button-row { justify-content: center; }
+    }
+
+    img {
+        width: 80px;
+        height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="button-row">
+    <button id="exportBtn"><i class="fa-solid fa-download"></i>　エクスポート</button>
+    <button id="importBtn"><i class="fa-solid fa-upload"></i>　インポート</button>
+    <input type="file" id="importInput" accept=".jsb,.xml">
+    <button id="runBtn"> <i class="fa-solid fa-play"></i> 実行</button>
+
+  </div>
+
+  <div class="container">
+    <div id="blocklyDiv"></div>
+    <pre id="output">// JSコードがここに表示されます</pre>
+  </div>
+
+  <footer style="text-align:center;color:#888;font-size:0.9em;padding:16px;">
+    Powered by <a href="https://developers.google.com/blockly" target="_blank" rel="noopener">Blockly</a>
+  </footer>
+
+  <script>
+    // Blocklyワークスペース初期化
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: `
+        <xml xmlns="http://www.w3.org/1999/xhtml">
+          <category name="論理" colour="%{BKY_LOGIC_HUE}">
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_negate"></block>
+            <block type="logic_boolean"></block>
+            <block type="logic_null"></block>
+            <block type="logic_ternary"></block>
+          </category>
+          <category name="制御" colour="%{BKY_LOOPS_HUE}">
+            <block type="controls_if"></block>
+            <block type="controls_repeat_ext">
+              <value name="TIMES">
+                <shadow type="math_number">
+                  <field name="NUM">10</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_for">
+              <value name="FROM">
+                <shadow type="math_number">
+                  <field name="NUM">1</field>
+                </shadow>
+              </value>
+              <value name="TO">
+                <shadow type="math_number">
+                  <field name="NUM">10</field>
+                </shadow>
+              </value>
+              <value name="BY">
+                <shadow type="math_number">
+                  <field name="NUM">1</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="controls_forEach"></block>
+            <block type="controls_flow_statements"></block>
+          </category>
+          <category name="演算" colour="%{BKY_MATH_HUE}">
+            <block type="math_number"></block>
+            <block type="math_arithmetic"></block>
+            <block type="math_single"></block>
+            <block type="math_trig"></block>
+            <block type="math_constant"></block>
+            <block type="math_number_property"></block>
+            <block type="math_round"></block>
+            <block type="math_on_list"></block>
+            <block type="math_modulo"></block>
+            <block type="math_constrain"></block>
+            <block type="math_random_int"></block>
+            <block type="math_random_float"></block>
+            </category>
+            <category name="テキスト" colour="%{BKY_TEXTS_HUE}">
+            <block type="text"></block>
+            <block type="text_join"></block>
+            <block type="text_append"></block>
+            <block type="text_length"></block>
+            <block type="text_isEmpty"></block>
+            <block type="text_indexOf"></block>
+            <block type="text_charAt"></block>
+            <block type="text_getSubstring"></block>
+            <block type="text_changeCase"></block>
+            <block type="text_trim"></block>
+            <block type="text_print"></block>
+            <block type="text_prompt_ext"></block>
+          </category>
+            <category name="コンソール" colour="%{BKY_CONSOLE_HUE}">
+            <block type="console_log"></block>
+          </category>
+          <category name="音" colour="%{BKY_SOUND_HUE}">
+            <block type="sound_play"></block>
+          </category>
+          <category name="変数" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+          <category name="関数" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
+        </xml>`,
+      backpack: true,
+      trashcan: true,
+      renderer: 'Zelos', // ← Zelosを指定
+      grid: {
+        spacing: 40,
+        length: 3,
+        colour: '#ccc',
+        snap: true,
+      },
+      zoom: {
+        controls: true,
+        wheel: true,
+        startScale: 0.7, // ← ここで小さく！
+        maxScale: 3,
+        minScale: 0.3,
+        scaleSpeed: 1.2
+      },
+      locale: 'ja'
+    });
+
+    const pre = document.getElementById('output');
+    workspace.addChangeListener(() => {
+      const code = Blockly.JavaScript.workspaceToCode(workspace);
+      pre.textContent = code || '// ブロックをつなげてみてね！';
+    });
+
+// コンソールに(こんにちは)を記録する
+
+    const console_log = {
+  init: function() {
+    this.appendEndRowInput('block')
+    　.appendField('コンソールに')
+      .appendField(new Blockly.FieldTextInput('こんにちは'), 'TXT')
+      .appendField('を記録する')
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('コンソールに内容を記録します');
+    this.setHelpUrl('');
+    this.setColour(44);
+  }
+};
+Blockly.common.defineBlocks({console_log: console_log});
+                    
+javascript.javascriptGenerator.forBlock['console_log'] = function(block) {
+  const text_txt = block.getFieldValue('TXT');
+
+  // TODO: Assemble javascript into the code variable.
+  return `\nconsole.log('${text_txt}')`;
+}
+
+// URL(https://tinyurl.com/5xytr36j)の音を鳴らす
+
+const sound_play = {
+  init: function() {
+    this.appendEndRowInput('block')
+      .appendField('URL')
+      .appendField(new Blockly.FieldTextInput("https://tinyurl.com/5xytr36j"), 'URL')
+      .appendField('の音を鳴らす');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('URLから音を鳴らす');
+    this.setHelpUrl('');
+    this.setColour(260);
+  }
+};
+Blockly.common.defineBlocks({sound_play: sound_play});
+                                        
+
+javascript.javascriptGenerator.forBlock['sound_play'] = function(block) {
+  const text_url = block.getFieldValue('URL');
+
+  return `\nvar audio = new Audio('${text_url}')\naudio.play();`;
+}
+
+    // エクスポート（.jsb = XML）イベント
+    document.getElementById('exportBtn').onclick = function() {
+      const xmlDom = Blockly.Xml.workspaceToDom(workspace);
+      const xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+      const blob = new Blob([xmlText], {type: 'text/xml'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'blocks.jsb';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
+    // インポート（.jsb/.xml）イベント
+    document.getElementById('importBtn').onclick = function() {
+      document.getElementById('importInput').value = "";
+      document.getElementById('importInput').click();
+    };
+    document.getElementById('importInput').onchange = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          // Blockly v10以降は utils.xml.textToDom を使う
+          const xmlDom = Blockly.utils.xml.textToDom(event.target.result);
+          workspace.clear();
+          Blockly.Xml.domToWorkspace(xmlDom, workspace);
+        } catch (err) {
+          alert('ファイルが壊れている、XML形式でありません');
+          console.error(err);
+          console.log(event.target.result);
+        }
+      };
+      reader.readAsText(file);
+    };
+  </script>
+  <script>
+document.getElementById('runBtn').onclick = function () {
+  const code = Blockly.JavaScript.workspaceToCode(workspace);
+  try {
+    new Function(code)();  // asyncなしの普通の関数として実行
+  } catch (e) {
+    alert('実行エラー: ' + e.message);
+    console.error(e);
+  }
+};
+  </script>
+  
+</body>
+</html>

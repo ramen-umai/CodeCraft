@@ -9,7 +9,7 @@ Blocklyをベースにしており、初心者や教育現場でも使いやす�
 
 ## デモ・公開ページ
 
-[CodeCraft デモサイト（GitHub Pages）](https://ramen-umai.github.io/codecraft/)
+[CodeCraft デモサイト（GitHub Pages）](https://ramen-umai.github.io/CodeCraft/block.html)
 
 上記URLから、インストール不要ですぐにお試しいただけます。
 
